@@ -1,0 +1,24 @@
+{
+  "events": [
+    {
+      "case_id": "1",
+      "activity": "Start",
+      "timestamp": "2026-01-01T00:00:00Z"
+    },
+    {
+      "case_id": "1",
+      "activity": "Review",
+      "timestamp": "2026-01-01T00:10:00Z"
+    },
+    {
+      "case_id": "2",
+      "activity": "Start",
+      "timestamp": "2026-01-01T01:00:00Z"
+    },
+    {
+      "case_id": "2",
+      "activity": "Review",
+      "timestamp": "2026-01-01T01:20:00Z"
+    }
+  ]
+}
