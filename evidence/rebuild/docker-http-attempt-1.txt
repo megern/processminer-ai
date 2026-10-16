@@ -1,0 +1,56 @@
+{
+  "synthetic": true,
+  "http_status": 200,
+  "invalid_input_status": 422,
+  "latency_ms": [
+    3.3350419253110886,
+    2.3494591005146503,
+    2.170250052586198
+  ],
+  "result": {
+    "case_count": 2,
+    "event_count": 4,
+    "mean_case_seconds": 900.0,
+    "directly_follows": [
+      {
+        "from": "Start",
+        "to": "Review",
+        "count": 2,
+        "mean_seconds": 900.0,
+        "total_seconds": 1800.0
+      }
+    ],
+    "bottlenecks": [
+      {
+        "from": "Start",
+        "to": "Review",
+        "count": 2,
+        "mean_seconds": 900.0,
+        "total_seconds": 1800.0
+      }
+    ],
+    "variants": [
+      {
+        "activities": [
+          "Start",
+          "Review"
+        ],
+        "case_count": 2
+      }
+    ],
+    "automation_candidates": [
+      {
+        "activity": "Review",
+        "event_count": 2,
+        "reason": "Repeated activity; investigate deterministic rules and exception rate before automation."
+      },
+      {
+        "activity": "Start",
+        "event_count": 2,
+        "reason": "Repeated activity; investigate deterministic rules and exception rate before automation."
+      }
+    ],
+    "tied_timestamp_pairs": 0,
+    "limitations": "Intervals include waiting and execution time; they are not activity service durations. Ties preserve input order. Frequency alone does not establish automation feasibility."
+  }
+}

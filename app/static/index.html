@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ProcessMiner AI</title>
+    <link rel="stylesheet" href="/assets/styles.css" />
+    <script type="module" src="/assets/app.js"></script>
+  </head>
+  <body>
+    <header>
+      <div class="eyebrow">PROCESSMINER AI · 0.2</div>
+      <h1>Understand event sequences and investigate where work waits.</h1>
+      <p>
+        Import an event log, map case, activity and timestamp columns, and
+        inspect common paths, elapsed intervals and repetition.
+      </p>
+      <a href="/guide">User guide</a><a href="/docs">API documentation</a>
+    </header>
+    <main>
+      <div class="actions controls">
+        <button id="example">Load synthetic example</button
+        ><span id="data-origin" class="pill"
+          >Your input · no example loaded</span
+        >
+      </div>
+      <div id="status" role="status" aria-live="polite" class="status"></div>
+      <div class="layout">
+        <section class="panel input-panel">
+          <h2>1. Import the event log</h2>
+          <label for="csv-file">Event CSV file</label
+          ><input id="csv-file" type="file" accept=".csv,text/csv" /><label
+            for="csv"
+            >Or paste CSV</label
+          ><textarea
+            id="csv"
+            placeholder="case,activity,time&#10;1,Start,2026-01-01T00:00:00Z&#10;1,Review,2026-01-01T00:10:00Z"
+          ></textarea
+          ><button id="preview">Preview and map columns</button>
+          <div id="preview-data"></div>
+          <h2>2. Map event fields</h2>
+          <label for="case-column">Case identifier</label
+          ><select id="case-column"></select
+          ><label for="activity-column">Activity name</label
+          ><select id="activity-column"></select
+          ><label for="timestamp-column">Timestamp</label
+          ><select id="timestamp-column"></select>
+          <p class="hint">
+            Use ISO 8601 timestamps with a timezone, for example
+            2026-01-01T09:00:00+03:00. Events are sorted within each case. Equal
+            timestamps preserve input order.
+          </p>
+          <label for="config-file">Import a saved mapping</label
+          ><input
+            id="config-file"
+            type="file"
+            accept=".json,application/json"
+          />
+          <div class="actions">
+            <button id="run" class="primary">Run analysis</button
+            ><button id="export-config">Export configuration</button>
+          </div>
+        </section>
+        <section class="panel">
+          <h2>Results and next actions</h2>
+          <p class="hint">
+            Interpret findings in context. None of these checks certifies
+            enterprise readiness or proves causal or automation outcomes.
+          </p>
+          <div id="results" aria-live="polite">
+            <p class="empty">
+              Load the clearly synthetic example or add your own input, then run
+              analysis.
+            </p>
+          </div>
+          <div class="actions">
+            <button id="export-report" disabled>Export report</button
+            ><button id="print" disabled>Print / save PDF</button>
+          </div>
+          <details>
+            <summary>Technical report</summary>
+            <pre id="technical">No analysis yet.</pre>
+          </details>
+        </section>
+      </div>
+      <footer>
+        Local, CPU-only analysis. No paid APIs or external resources. Imports
+        are sent to this server, held in memory and not saved by the
+        application. Exports can include your input data: keep them private
+        where appropriate.
+      </footer>
+    </main>
+  </body>
+</html>
