@@ -1,4 +1,4 @@
-# ProcessMiner AI · 0.2.0
+# ProcessMiner AI · 0.3.0
 
 **Event-log exploration and automation discovery.** A local event-log analysis tool for analysts and operations teams. It reveals observed case paths, directly-follows relations and long inter-event intervals, then proposes repeated activities for investigation.
 
@@ -57,7 +57,7 @@ python -m bandit -r app -ll
 python -m pip_audit --disable-pip --no-deps --require-hashes -r requirements.lock
 ```
 
-New 0.2 validation is recorded under `evidence/rebuild/`. Older evidence documents the earlier implementation and must not be treated as proof of this interface. Meaningful existing arithmetic/security tests are retained. CI checks Python and frontend tests, dependency vulnerabilities, secret patterns, container vulnerabilities and real HTTP smoke operation. Require the `quality` check in repository branch protection to prevent merging failing revisions; a workflow alone cannot enforce that policy.
+Historical 0.2 validation is retained under `evidence/rebuild/`; current 0.3 checks are recorded under `evidence/improvements-0.3/`. Older evidence documents the earlier implementation and must not be treated as proof of this interface. Meaningful existing arithmetic/security tests are retained. CI checks Python and frontend tests, dependency vulnerabilities, secret patterns, container vulnerabilities and real HTTP smoke operation. Require the `quality` check in repository branch protection to prevent merging failing revisions; a workflow alone cannot enforce that policy.
 
 ## Limits and troubleshooting
 
@@ -70,3 +70,17 @@ HTTP JSON requests are bounded at 2 MiB; CSV parsing is bounded at 50 columns/10
 ## License
 
 MIT. See LICENSE. Review transitive dependency licenses for your distribution. Contributors and review evidence are automated engineering work; no human reviewer is invented.
+
+## Rework and case durations in 0.3
+
+Rework diagnostics count occurrences after the first of the same activity within the same case. A case A→B→B has one extra visit; A→B→A has one extra visit too. Two different cases each visiting A once have no rework even though A is frequent globally. The output reports cases with repetition, their fraction and extra activity visits. Repetition may be legitimate process behavior, not an error, waste or automation opportunity by itself. Existing global frequency candidates remain only an investigation shortlist.
+
+Duration summaries now include median, P90 and P95 across all observed cases. Percentiles use linear interpolation at sorted position (n−1)×p. Durations [0,10,20,30] minutes have median 15, P90 27 and P95 28.5 minutes. A single case has the same value for all three; a single-event case has duration zero. Values are descriptive observed first-to-last spans, not forecasts or service-level guarantees. Incomplete cases, timestamp ties, missing events and mixed business calendars can distort interpretation.
+
+Set the case drill-down limit from 1 to 200 (default 50). Cases are shown in lexicographic case-ID order. All cases still contribute to summaries regardless of that limit. Each row gives event count, observed duration, a path preview, extra visits and repeated activities. Each path and repeated-activity list is capped at 50 entries and marks truncation. Full original events remain in input exports; the bounded drill-down intentionally does not duplicate every event.
+
+API /analyze and /csv/analyze accept case_limit. Outputs add case_duration_summary, rework and bounded case_details, with explicit limit/truncation fields. CSV configurations retain the selected limit and report exports retain the diagnostics. Existing timezone, explicit-empty-record and event-order validation is unchanged.
+
+Fresh 0.3 validation is saved in `evidence/improvements-0.3/`; older reports describe earlier versions and are not proof of these additions. This is automated developer work with separate release-manager and independent QA gates; no human review or enterprise certification is claimed.
+
+The new synthetic request `examples/synthetic-improvements-03.json` demonstrates this version. POST it to `/csv/analyze`; all data are synthetic.

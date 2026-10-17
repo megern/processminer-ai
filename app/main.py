@@ -5,7 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from .core import Request, analyze
 from .guard import InputGuard
 
-app = FastAPI(title="ProcessMiner AI", version="0.2.0")
+app = FastAPI(title="ProcessMiner AI", version="0.3.0")
 app.add_middleware(InputGuard)
 STATIC = Path(__file__).with_name("static")
 app.mount("/assets", StaticFiles(directory=STATIC), name="assets")
@@ -49,6 +49,7 @@ class CSVEvents(BaseModel):
     case_column: str
     activity_column: str
     timestamp_column: str
+    case_limit: int = Field(default=50, ge=1, le=200)
 
 
 @app.post("/csv/analyze")
@@ -87,7 +88,7 @@ def mine_csv(request: CSVEvents):
             }
             for row in rows
         ]
-        return analyze(Request(events=events))
+        return analyze(Request(events=events, case_limit=request.case_limit))
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 

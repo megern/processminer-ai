@@ -1,0 +1,7 @@
+{
+  "csv_text": "case,activity,time\na,Start,2026-01-01T00:00:00Z\na,Review,2026-01-01T00:01:00Z\na,Review,2026-01-01T00:02:00Z\nb,Start,2026-01-01T00:00:00Z\nb,Review,2026-01-01T00:03:00Z",
+  "case_column": "case",
+  "activity_column": "activity",
+  "timestamp_column": "time",
+  "case_limit": 50
+}

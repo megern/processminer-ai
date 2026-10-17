@@ -9,7 +9,7 @@
   </head>
   <body>
     <header>
-      <div class="eyebrow">PROCESSMINER AI · 0.2</div>
+      <div class="eyebrow">PROCESSMINER AI · 0.3</div>
       <h1>Understand event sequences and investigate where work waits.</h1>
       <p>
         Import an event log, map case, activity and timestamp columns, and
@@ -49,6 +49,13 @@
             Use ISO 8601 timestamps with a timezone, for example
             2026-01-01T09:00:00+03:00. Events are sorted within each case. Equal
             timestamps preserve input order.
+          </p>
+          <label for="case-limit"
+            >Case drill-down rows (1–200, ordered by case ID)</label
+          ><input id="case-limit" type="number" min="1" max="200" value="50" />
+          <p class="hint">
+            Summaries use all cases. Each displayed path and repeated-activity
+            list is capped at 50 entries.
           </p>
           <label for="config-file">Import a saved mapping</label
           ><input

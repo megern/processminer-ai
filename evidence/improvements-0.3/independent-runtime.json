@@ -1,0 +1,226 @@
+{
+  "application": "processminer-ai",
+  "port": 18209,
+  "reviewer": "independent build_security_rag_arena_data",
+  "version": "0.3.0",
+  "kind": "Actual loopback HTTP requests to Docker preview provided by orchestrator",
+  "checks": [
+    {
+      "name": "health",
+      "status": 200,
+      "passed": true
+    },
+    {
+      "name": "observed duration percentiles and rework with capped details",
+      "path": "/analyze",
+      "status": 200,
+      "passed": true,
+      "response": {
+        "case_count": 4,
+        "event_count": 9,
+        "mean_case_seconds": 900.0,
+        "case_duration_summary": {
+          "median_seconds": 900.0,
+          "p90_seconds": 1620.0,
+          "p95_seconds": 1709.9999999999998,
+          "method": "Linear interpolation at (n-1)*p across all observed case durations."
+        },
+        "rework": {
+          "cases_with_rework": 2,
+          "case_fraction": 0.5,
+          "extra_activity_visits": 2,
+          "definition": "Occurrences after the first of the same activity within the same case. Repetition may be legitimate; it does not prove error or waste."
+        },
+        "case_details": [
+          {
+            "case_id": "a",
+            "event_count": 3,
+            "duration_seconds": 600.0,
+            "variant": [
+              "A",
+              "B",
+              "A"
+            ],
+            "variant_truncated": false,
+            "rework_events": 1,
+            "repeated_activity_count": 1,
+            "repeated_activities": [
+              {
+                "activity": "A",
+                "extra_visits": 1
+              }
+            ],
+            "repeated_activities_truncated": false
+          }
+        ],
+        "case_details_limit": 1,
+        "case_details_truncated": true,
+        "directly_follows": [
+          {
+            "from": "A",
+            "to": "A",
+            "count": 1,
+            "mean_seconds": 0.0,
+            "total_seconds": 0.0
+          },
+          {
+            "from": "A",
+            "to": "B",
+            "count": 2,
+            "mean_seconds": 750.0,
+            "total_seconds": 1500.0
+          },
+          {
+            "from": "B",
+            "to": "A",
+            "count": 1,
+            "mean_seconds": 300.0,
+            "total_seconds": 300.0
+          },
+          {
+            "from": "C",
+            "to": "D",
+            "count": 1,
+            "mean_seconds": 1800.0,
+            "total_seconds": 1800.0
+          }
+        ],
+        "bottlenecks": [
+          {
+            "from": "C",
+            "to": "D",
+            "count": 1,
+            "mean_seconds": 1800.0,
+            "total_seconds": 1800.0
+          },
+          {
+            "from": "A",
+            "to": "B",
+            "count": 2,
+            "mean_seconds": 750.0,
+            "total_seconds": 1500.0
+          },
+          {
+            "from": "B",
+            "to": "A",
+            "count": 1,
+            "mean_seconds": 300.0,
+            "total_seconds": 300.0
+          },
+          {
+            "from": "A",
+            "to": "A",
+            "count": 1,
+            "mean_seconds": 0.0,
+            "total_seconds": 0.0
+          }
+        ],
+        "variants": [
+          {
+            "activities": [
+              "A",
+              "A"
+            ],
+            "case_count": 1
+          },
+          {
+            "activities": [
+              "A",
+              "B"
+            ],
+            "case_count": 1
+          },
+          {
+            "activities": [
+              "A",
+              "B",
+              "A"
+            ],
+            "case_count": 1
+          },
+          {
+            "activities": [
+              "C",
+              "D"
+            ],
+            "case_count": 1
+          }
+        ],
+        "automation_candidates": [
+          {
+            "activity": "A",
+            "event_count": 5,
+            "reason": "Repeated activity; investigate deterministic rules and exception rate before automation."
+          },
+          {
+            "activity": "B",
+            "event_count": 2,
+            "reason": "Repeated activity; investigate deterministic rules and exception rate before automation."
+          }
+        ],
+        "tied_timestamp_pairs": 1,
+        "limitations": "Intervals include waiting and execution time; they are not activity service durations. Ties preserve input order. Frequency alone does not establish automation feasibility."
+      }
+    },
+    {
+      "name": "reject invalid case drilldown limit",
+      "path": "/analyze",
+      "status": 422,
+      "passed": true,
+      "response": {
+        "detail": [
+          {
+            "type": "less_than_equal",
+            "loc": [
+              "body",
+              "case_limit"
+            ],
+            "msg": "Input should be less than or equal to 200",
+            "input": 201,
+            "ctx": {
+              "le": 200
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "served_static_sha256": {
+    "/assets/app.js": {
+      "expected_source_sha256": "d9108d3b1bd97ab1608dbe5c72e4d419e7ae0a65e9c71d1697b8c311bf04b552",
+      "actual_http_sha256": "d9108d3b1bd97ab1608dbe5c72e4d419e7ae0a65e9c71d1697b8c311bf04b552",
+      "status": 200,
+      "matches": true
+    },
+    "/assets/common.js": {
+      "expected_source_sha256": "db81bb3e1ae49d7bf962ae0d2546ff86f628c7ca2a0c1cd2e0f406bf3a448a5e",
+      "actual_http_sha256": "db81bb3e1ae49d7bf962ae0d2546ff86f628c7ca2a0c1cd2e0f406bf3a448a5e",
+      "status": 200,
+      "matches": true
+    },
+    "/guide": {
+      "expected_source_sha256": "61d7d79a11b4ea42859f27c5f4d37801b668eec99fce5f198fbef7bcf7eb7f19",
+      "actual_http_sha256": "61d7d79a11b4ea42859f27c5f4d37801b668eec99fce5f198fbef7bcf7eb7f19",
+      "status": 200,
+      "matches": true
+    },
+    "/": {
+      "expected_source_sha256": "07d4f2b5d6ad16e1a31987c127de6e227bcc627764b329630c7c4e01acba94e0",
+      "actual_http_sha256": "07d4f2b5d6ad16e1a31987c127de6e227bcc627764b329630c7c4e01acba94e0",
+      "status": 200,
+      "matches": true
+    },
+    "/assets/styles.css": {
+      "expected_source_sha256": "14e48894070883d8545452d3e2b9bcefe3b8316e22048fc10b5b334e3cb137ad",
+      "actual_http_sha256": "14e48894070883d8545452d3e2b9bcefe3b8316e22048fc10b5b334e3cb137ad",
+      "status": 200,
+      "matches": true
+    }
+  },
+  "passed": true,
+  "limitations": [
+    "Served static/guide bytes matched reviewed source files; this alone does not prove Python image provenance.",
+    "HTTP assertions check deterministic synthetic examples, not real-world external validity.",
+    "This review used actual HTTP; visual browser acceptance and CI/release verification remain separate."
+  ]
+}

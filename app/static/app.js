@@ -18,7 +18,7 @@ import {
   bindFile,
   readFile,
   setOptions,
-  format
+  format,
 } from "./common.js";
 let columns = [],
   synthetic = false,
@@ -31,7 +31,13 @@ function dirty() {
   invalidate();
 }
 $("csv").oninput = dirty;
-for (const id of ["case-column", "activity-column", "timestamp-column"])
+$("case-limit").oninput = dirty;
+for (const id of [
+  "case-column",
+  "activity-column",
+  "timestamp-column",
+  "case-limit",
+])
   $(id).onchange = dirty;
 async function preview() {
   report = null;
@@ -45,24 +51,24 @@ async function preview() {
     el(
       "p",
       `${r.row_count} event rows · first ${r.preview.length} shown`,
-      "hint"
+      "hint",
     ),
-    previewRows(columns, r.preview)
+    previewRows(columns, r.preview),
   );
   setOptions(
     $("case-column"),
     columns,
-    columns.find((c) => /case/i.test(c)) || columns[0]
+    columns.find((c) => /case/i.test(c)) || columns[0],
   );
   setOptions(
     $("activity-column"),
     columns,
-    columns.find((c) => /activity|event/i.test(c)) || columns[1]
+    columns.find((c) => /activity|event/i.test(c)) || columns[1],
   );
   setOptions(
     $("timestamp-column"),
     columns,
-    columns.find((c) => /time|date/i.test(c)) || columns[2]
+    columns.find((c) => /time|date/i.test(c)) || columns[2],
   );
   return { ...r, generation };
 }
@@ -72,7 +78,7 @@ $("preview").onclick = async () => {
     const prepared = await preview();
     assertCurrent(prepared.generation);
     status(
-      "CSV parsed. Map three distinct columns and check the timezone in your timestamps."
+      "CSV parsed. Map three distinct columns and check the timezone in your timestamps.",
     );
   } catch (e) {
     if (isStale(e)) return;
@@ -88,14 +94,15 @@ bindFile(
     assertCurrent(prepared.generation);
     status("Event CSV loaded. Review the mapping.");
   },
-  dirty
+  dirty,
 );
 function config() {
   return {
     csv_text: $("csv").value,
     case_column: $("case-column").value,
     activity_column: $("activity-column").value,
-    timestamp_column: $("timestamp-column").value
+    timestamp_column: $("timestamp-column").value,
+    case_limit: Number($("case-limit").value || 50),
   };
 }
 $("example").onclick = async () => {
@@ -105,10 +112,11 @@ $("example").onclick = async () => {
       "case,activity,time\n1,Start,2026-01-01T00:00:00Z\n1,Review,2026-01-01T00:10:00Z\n1,Complete,2026-01-01T00:12:00Z\n2,Start,2026-01-01T01:00:00Z\n2,Review,2026-01-01T01:20:00Z\n2,Complete,2026-01-01T01:25:00Z";
     const prepared = await preview();
     assertCurrent(prepared.generation);
+    $("case-limit").value = 50;
     synthetic = true;
     $("data-origin").textContent = "Synthetic example · not a real process log";
     status(
-      "Synthetic three-activity paths loaded. Start → Review has the largest mean observed interval."
+      "Synthetic three-activity paths loaded. Start → Review has the largest mean observed interval.",
     );
   } catch (e) {
     if (isStale(e)) return;
@@ -132,12 +140,13 @@ $("config-file").onchange = async () => {
     for (const [id, key] of [
       ["case-column", "case_column"],
       ["activity-column", "activity_column"],
-      ["timestamp-column", "timestamp_column"]
+      ["timestamp-column", "timestamp_column"],
     ]) {
       if (!columns.includes(data[key]))
         throw new Error("Mapped column " + key + " is not present in the CSV.");
       $(id).value = data[key];
     }
+    $("case-limit").value = data.case_limit ?? 50;
     status("Mapping imported. Review events before analysis.");
   } catch (e) {
     if (isStale(e)) return;
@@ -160,15 +169,65 @@ $("run").onclick = () =>
       metrics([
         ["Cases", result.case_count],
         ["Events", result.event_count],
-        ["Mean case minutes", result.mean_case_seconds / 60]
-      ])
+        ["Mean case minutes", result.mean_case_seconds / 60],
+      ]),
+    );
+    const summary = result.case_duration_summary;
+    $("results").append(
+      el("h3", "Case duration distribution"),
+      metrics([
+        ["Median minutes", summary.median_seconds / 60],
+        ["P90 minutes", summary.p90_seconds / 60],
+        ["P95 minutes", summary.p95_seconds / 60],
+      ]),
+      el(
+        "p",
+        summary.method +
+          " Durations are observed first-to-last spans, not predictions.",
+        "hint",
+      ),
+      el("h3", "Repeated activity within a case"),
+      metrics([
+        ["Cases with repetition", result.rework.cases_with_rework],
+        ["Extra visits", result.rework.extra_activity_visits],
+      ]),
+      el("p", result.rework.definition, "notice"),
+      el("h3", "Case drill-down"),
+      table(
+        [
+          "Case",
+          "Events",
+          "Duration minutes",
+          "Path preview",
+          "Extra visits",
+          "Repeated activities",
+        ],
+        result.case_details.map((c) => [
+          c.case_id,
+          c.event_count,
+          format(c.duration_seconds / 60),
+          c.variant.join(" → ") + (c.variant_truncated ? " … (truncated)" : ""),
+          c.rework_events,
+          c.repeated_activities
+            .map((a) => a.activity + " (+" + a.extra_visits + ")")
+            .join("; ") +
+            (c.repeated_activities_truncated ? " … (truncated)" : ""),
+        ]),
+      ),
+      el(
+        "p",
+        result.case_details_truncated
+          ? `Showing the first ${result.case_details.length} cases by ID. All cases contribute to summaries.`
+          : "All cases shown.",
+        "hint",
+      ),
     );
     $("results").append(
       el("h3", "Observed paths"),
       table(
         ["Ordered activities", "Cases"],
-        result.variants.map((v) => [v.activities.join(" → "), v.case_count])
-      )
+        result.variants.map((v) => [v.activities.join(" → "), v.case_count]),
+      ),
     );
     if (result.directly_follows.length) {
       $("results").append(
@@ -176,13 +235,13 @@ $("run").onclick = () =>
         el(
           "p",
           "These intervals include both waiting and execution time. They are not measured service durations.",
-          "hint"
+          "hint",
         ),
         bars(
           result.bottlenecks
             .slice(0, 12)
             .map((e) => [e.from + " → " + e.to, e.mean_seconds / 60]),
-          Math.max(...result.bottlenecks.map((e) => e.mean_seconds / 60))
+          Math.max(...result.bottlenecks.map((e) => e.mean_seconds / 60)),
         ),
         table(
           ["From", "To", "Frequency", "Mean minutes", "Total minutes"],
@@ -191,33 +250,33 @@ $("run").onclick = () =>
             e.to,
             e.count,
             format(e.mean_seconds / 60),
-            format(e.total_seconds / 60)
-          ])
-        )
+            format(e.total_seconds / 60),
+          ]),
+        ),
       );
       const top = result.bottlenecks[0];
       $("results").append(
         el(
           "p",
           `Investigate ${top.from} → ${top.to} first: mean observed interval ${format(top.mean_seconds / 60)} minutes across ${top.count} transitions. Ask whether this reflects queues, batching, missing events or actual execution time.`,
-          "notice"
-        )
+          "notice",
+        ),
       );
     } else
       $("results").append(
         el(
           "p",
           "No consecutive events within a case. Check whether case identifiers accidentally identify individual events.",
-          "notice"
-        )
+          "notice",
+        ),
       );
     $("results").append(el("h3", "Automation discovery shortlist"));
     if (!result.automation_candidates.length)
       $("results").append(
         el(
           "p",
-          "No activity repeated in this log. More complete cases may be needed."
-        )
+          "No activity repeated in this log. More complete cases may be needed.",
+        ),
       );
     else
       $("results").append(
@@ -226,17 +285,17 @@ $("run").onclick = () =>
           result.automation_candidates.map((c) => [
             c.activity,
             c.event_count,
-            "Check rule consistency, exception rate and ownership before automating."
-          ])
-        )
+            "Check rule consistency, exception rate and ownership before automating.",
+          ]),
+        ),
       );
     if (result.tied_timestamp_pairs)
       $("results").append(
         el(
           "p",
           `${result.tied_timestamp_pairs} adjacent pairs share a timestamp. Their order follows the original CSV; verify timestamp precision.`,
-          "notice"
-        )
+          "notice",
+        ),
       );
     $("results").append(el("p", result.limitations, "hint"));
     $("technical").textContent = JSON.stringify(result, null, 2);
