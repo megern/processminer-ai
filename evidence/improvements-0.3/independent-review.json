@@ -1,0 +1,46 @@
+{
+  "reviewer": "build_security_rag_arena_data independent agent; not this application production-code author",
+  "version": "0.3.0",
+  "status": "TESTED",
+  "scope": "Source/method/guide inspection, independently authored regressions, full pytest/frontend reruns and actual HTTP runtime assertions against orchestrator-provided Docker previews. Served static assets and guide bytes matched exact reviewed source hashes. No visual browser or release claim.",
+  "findings": "Independent case traces yield hand-computed median/P90/P95, repetition counts, ties and all-case denominators despite capped drill-down. Long trace previews truncate while aggregate repetition counts remain exact. Guides distinguish elapsed case spans from service time.",
+  "issues": [
+    "Existing full variants and edge tables are bounded by10000inputevents, but can still be large.",
+    "Repetition may be legitimate; no automation feasibility or causal meaning follows.",
+    "Visual browser acceptance, image provenance/security and CI/release verification are separate orchestrator gates. Synthetic examples do not establish external validity."
+  ],
+  "confidence": "High in checked deterministic arithmetic and validation; moderate in broader use-case validity.",
+  "full_suite_exit_code": 0,
+  "evidence": [
+    "independent-tests.txt",
+    "independent-full-suite.txt",
+    "independent-frontend.txt",
+    "independent-runtime.json"
+  ],
+  "source_sha256": {
+    "app/USER_GUIDE.md": "0260d5fbd6b53e8a6fdf72b7e52f7fe54c995cffb8e3bee2c7a1f4487c386d0b",
+    "app/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "app/core.py": "a8deebd1250bd7994ec46c2f5fe0eb211f7f1d429f817e62218ff60a2b8540fc",
+    "app/csv_import.py": "7d605fe5bf5b14b9563481752dcd4c7aef7b67e2539b9d5171a75f7ee2c10346",
+    "app/guard.py": "d1eda2150e58503114c6cf4ba36d5958aa7e2cfbb496fc0d8026b5c9da4beb77",
+    "app/main.py": "692d30577a62d7c71daf7a93faef8a2d0904a8ab8643780697de1a7cdc21217f",
+    "app/static/app.js": "d9108d3b1bd97ab1608dbe5c72e4d419e7ae0a65e9c71d1697b8c311bf04b552",
+    "app/static/common.js": "db81bb3e1ae49d7bf962ae0d2546ff86f628c7ca2a0c1cd2e0f406bf3a448a5e",
+    "app/static/guide.html": "61d7d79a11b4ea42859f27c5f4d37801b668eec99fce5f198fbef7bcf7eb7f19",
+    "app/static/index.html": "07d4f2b5d6ad16e1a31987c127de6e227bcc627764b329630c7c4e01acba94e0",
+    "app/static/styles.css": "14e48894070883d8545452d3e2b9bcefe3b8316e22048fc10b5b334e3cb137ad",
+    "docs/USER_GUIDE.md": "0260d5fbd6b53e8a6fdf72b7e52f7fe54c995cffb8e3bee2c7a1f4487c386d0b"
+  },
+  "frontend_exit_code": 0,
+  "source_hash_scope": "All files beneath app/ and docs/, excluding bytecode caches.",
+  "independent_test_sha256": "adf2805adb06f567bfbcac3ab810e564d6120dc0e858ace49f3e5d6144483196",
+  "source_unchanged_at_runtime_check": true,
+  "runtime_status": "TESTED",
+  "runtime": {
+    "actual_http_checks_passed": true,
+    "response_assertion_count": 3,
+    "served_asset_and_guide_hash_matches": 5,
+    "preview_port": 18209,
+    "evidence": "independent-runtime.json"
+  }
+}

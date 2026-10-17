@@ -42,3 +42,13 @@ All bundled examples are synthetic and are labeled. Editing or importing your ow
 ## Local operation
 
 Run docker compose up --build and open http://127.0.0.1:8000. Alternatively install requirements-dev.lock with hashes in a Python 3.12 environment and run uvicorn app.main:app --host 127.0.0.1 --port 8000. Change the host port to run multiple tools. No GPU is needed.
+
+## Rework and case durations in 0.3
+
+Rework diagnostics count occurrences after the first of the same activity within the same case. A case A→B→B has one extra visit; A→B→A has one extra visit too. Two different cases each visiting A once have no rework even though A is frequent globally. The output reports cases with repetition, their fraction and extra activity visits. Repetition may be legitimate process behavior, not an error, waste or automation opportunity by itself. Existing global frequency candidates remain only an investigation shortlist.
+
+Duration summaries now include median, P90 and P95 across all observed cases. Percentiles use linear interpolation at sorted position (n−1)×p. Durations [0,10,20,30] minutes have median 15, P90 27 and P95 28.5 minutes. A single case has the same value for all three; a single-event case has duration zero. Values are descriptive observed first-to-last spans, not forecasts or service-level guarantees. Incomplete cases, timestamp ties, missing events and mixed business calendars can distort interpretation.
+
+Set the case drill-down limit from 1 to 200 (default 50). Cases are shown in lexicographic case-ID order. All cases still contribute to summaries regardless of that limit. Each row gives event count, observed duration, a path preview, extra visits and repeated activities. Each path and repeated-activity list is capped at 50 entries and marks truncation. Full original events remain in input exports; the bounded drill-down intentionally does not duplicate every event.
+
+API /analyze and /csv/analyze accept case_limit. Outputs add case_duration_summary, rework and bounded case_details, with explicit limit/truncation fields. CSV configurations retain the selected limit and report exports retain the diagnostics. Existing timezone, explicit-empty-record and event-order validation is unchanged.
