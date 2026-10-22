@@ -19,6 +19,7 @@ import {
   readFile,
   setOptions,
   format,
+  download,
 } from "./common.js";
 let columns = [],
   synthetic = false,
@@ -103,6 +104,9 @@ function config() {
     activity_column: $("activity-column").value,
     timestamp_column: $("timestamp-column").value,
     case_limit: Number($("case-limit").value || 50),
+    ...($("reference-enable").checked
+      ? { reference: referenceConfiguration() }
+      : {}),
   };
 }
 $("example").onclick = async () => {
@@ -113,6 +117,7 @@ $("example").onclick = async () => {
     const prepared = await preview();
     assertCurrent(prepared.generation);
     $("case-limit").value = 50;
+    $("reference-enable").checked = false;
     synthetic = true;
     $("data-origin").textContent = "Synthetic example · not a real process log";
     status(
@@ -147,6 +152,8 @@ $("config-file").onchange = async () => {
       $(id).value = data[key];
     }
     $("case-limit").value = data.case_limit ?? 50;
+    if (data.reference) loadReference(data.reference);
+    $("reference-enable").checked = Boolean(data.reference);
     status("Mapping imported. Review events before analysis.");
   } catch (e) {
     if (isStale(e)) return;
@@ -297,9 +304,199 @@ $("run").onclick = () =>
           "notice",
         ),
       );
+    if (result.conformance) {
+      const c = result.conformance;
+      $("results").append(
+        el("h3", "Reference process conformance"),
+        metrics([
+          ["Conforming cases", c.conforming_cases],
+          ["Violating cases", c.violating_cases],
+          ["Descriptive conformance ratio", c.conformance_ratio],
+          ["Violations", c.violation_count],
+        ]),
+        el("p", c.method, "notice"),
+        table(
+          ["Case", "Conforms", "Violations", "Details"],
+          c.case_details.map((d) => [
+            d.case_id,
+            d.conforming ? "Yes" : "No",
+            d.violation_count,
+            d.violations
+              .map(
+                (v) =>
+                  v.kind + ": " + (v.activity ?? `${v.source} → ${v.target}`),
+              )
+              .join("; ") + (d.violations_truncated ? " … (truncated)" : ""),
+          ]),
+        ),
+        el(
+          "p",
+          c.case_details_truncated
+            ? "Drilldown limited; summary includes all cases."
+            : "All cases included in drilldown.",
+          "hint",
+        ),
+      );
+    }
     $("results").append(el("p", result.limitations, "hint"));
     $("technical").textContent = JSON.stringify(result, null, 2);
     $("export-report").disabled = false;
     $("print").disabled = false;
   });
 setupExports("processminer", () => report, config);
+
+const referencePanel = el("fieldset");
+referencePanel.id = "reference-panel";
+referencePanel.append(el("legend", "Optional reference process"));
+const referenceEnable = el("input"),
+  referenceLabel = el("label", "Check observed events against reference");
+referenceEnable.id = "reference-enable";
+referenceEnable.type = "checkbox";
+referenceLabel.htmlFor = referenceEnable.id;
+referencePanel.append(referenceLabel, referenceEnable);
+for (const [id, label, type] of [
+  ["reference-starts", "Allowed start activities (one per line)", "textarea"],
+  ["reference-ends", "Allowed end activities (one per line)", "textarea"],
+  ["reference-file", "Import reference JSON", "file"],
+]) {
+  const l = el("label", label),
+    c = el(type === "textarea" ? "textarea" : "input");
+  c.id = id;
+  l.htmlFor = id;
+  if (type === "file") {
+    c.type = "file";
+    c.accept = ".json,application/json";
+  } else c.maxLength = 50000;
+  referencePanel.append(l, c);
+}
+let referenceEdges = [];
+const edgeRows = el("div"),
+  addEdge = el("button", "Add allowed transition"),
+  referenceExample = el("button", "Load synthetic reference"),
+  referenceExport = el("button", "Export reference JSON");
+referenceExample.id = "reference-example";
+referenceExport.id = "reference-export";
+addEdge.id = "reference-add";
+referencePanel.append(
+  el(
+    "p",
+    "Allowed adjacent transitions: exact, case-sensitive activity names. All observed cases enter the ratio; there is no Petri-net alignment.",
+  ),
+  edgeRows,
+  addEdge,
+  referenceExample,
+  referenceExport,
+);
+document.querySelector(".input-panel").append(referencePanel);
+function renderReferenceEdges() {
+  replace(edgeRows);
+  referenceEdges.forEach((edge, i) => {
+    const row = el("div", "", "row");
+    for (const key of ["source", "target"]) {
+      const l = el("label", key === "source" ? "From activity" : "To activity"),
+        c = el("input");
+      c.id = `reference-edge-${i}-${key}`;
+      l.htmlFor = c.id;
+      c.maxLength = 200;
+      c.value = edge[key];
+      c.oninput = () => {
+        edge[key] = c.value;
+        dirty();
+      };
+      row.append(l, c);
+    }
+    const remove = el("button", "Remove transition");
+    remove.onclick = () => {
+      referenceEdges.splice(i, 1);
+      dirty();
+      renderReferenceEdges();
+    };
+    row.append(remove);
+    edgeRows.append(row);
+  });
+}
+function referenceConfiguration() {
+  return {
+    allowed_starts: $("reference-starts")
+      .value.split("\n")
+      .map((v) => v.trim())
+      .filter(Boolean),
+    allowed_ends: $("reference-ends")
+      .value.split("\n")
+      .map((v) => v.trim())
+      .filter(Boolean),
+    allowed_edges: referenceEdges.map((e) => ({ ...e })),
+  };
+}
+function loadReference(data) {
+  if (
+    !Array.isArray(data.allowed_starts) ||
+    !Array.isArray(data.allowed_ends) ||
+    !Array.isArray(data.allowed_edges) ||
+    data.allowed_edges.length > 2000 ||
+    data.allowed_starts.length > 200 ||
+    data.allowed_ends.length > 200 ||
+    [...data.allowed_starts, ...data.allowed_ends].some(
+      (v) => typeof v !== "string",
+    ) ||
+    data.allowed_edges.some(
+      (e) => typeof e.source !== "string" || typeof e.target !== "string",
+    )
+  )
+    throw new Error(
+      "Reference requires text start/end lists and up to 2,000 source/target transitions.",
+    );
+  $("reference-starts").value = data.allowed_starts.join("\n");
+  $("reference-ends").value = data.allowed_ends.join("\n");
+  referenceEdges = data.allowed_edges.map((e) => ({
+    source: e.source,
+    target: e.target,
+  }));
+  renderReferenceEdges();
+}
+referencePanel.addEventListener("input", (event) => {
+  if (event?.target?.type !== "file") dirty();
+});
+referencePanel.addEventListener("change", (event) => {
+  if (event?.target?.type !== "file") dirty();
+});
+addEdge.onclick = () => {
+  if (referenceEdges.length >= 2000) {
+    status("Maximum 2,000 reference transitions.", true);
+    return;
+  }
+  dirty();
+  referenceEdges.push({ source: "", target: "" });
+  renderReferenceEdges();
+};
+referenceExample.onclick = () => {
+  dirty();
+  loadReference({
+    allowed_starts: ["Start"],
+    allowed_ends: ["Complete"],
+    allowed_edges: [
+      { source: "Start", target: "Review" },
+      { source: "Review", target: "Complete" },
+    ],
+  });
+  $("reference-enable").checked = true;
+  status(
+    "Synthetic reference loaded; the event log remains your current input. Reference checks run with the normal analysis button.",
+  );
+};
+referenceExport.onclick = () =>
+  download("process-reference.json", referenceConfiguration());
+$("reference-file").onchange = async () => {
+  try {
+    dirty();
+    const generation = getRevision(),
+      text = await readFile($("reference-file"));
+    assertCurrent(generation);
+    if (text === null) return;
+    loadReference(JSON.parse(text));
+    $("reference-enable").checked = true;
+    status("Reference imported. Inspect it before checking observed events.");
+  } catch (e) {
+    if (!isStale(e)) status("Cannot import reference: " + e.message, true);
+  }
+};

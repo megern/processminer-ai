@@ -1,0 +1,47 @@
+{
+  "events": [
+    {
+      "case_id": "synthetic-1",
+      "activity": "Start",
+      "timestamp": "2026-01-01T00:00:00Z"
+    },
+    {
+      "case_id": "synthetic-1",
+      "activity": "Review",
+      "timestamp": "2026-01-01T00:01:00Z"
+    },
+    {
+      "case_id": "synthetic-1",
+      "activity": "Complete",
+      "timestamp": "2026-01-01T00:02:00Z"
+    },
+    {
+      "case_id": "synthetic-2",
+      "activity": "Start",
+      "timestamp": "2026-01-01T00:00:00Z"
+    },
+    {
+      "case_id": "synthetic-2",
+      "activity": "Complete",
+      "timestamp": "2026-01-01T00:01:00Z"
+    }
+  ],
+  "reference": {
+    "allowed_starts": [
+      "Start"
+    ],
+    "allowed_ends": [
+      "Complete"
+    ],
+    "allowed_edges": [
+      {
+        "source": "Start",
+        "target": "Review"
+      },
+      {
+        "source": "Review",
+        "target": "Complete"
+      }
+    ]
+  }
+}

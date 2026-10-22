@@ -1,0 +1,42 @@
+{
+  "python_tests": 36,
+  "frontend_tests": 14,
+  "routes": [
+    "POST /analyze optional reference",
+    "POST /csv/analyze optional reference"
+  ],
+  "limits": [
+    "200 starts/ends,2000 unique edges; no blank/duplicate reference names",
+    "All cases counted; drilldown1\u2013200 cases with50 detailed violations/case and explicit truncation",
+    "Descriptive adjacent-transition allowlist conformance only; equal timestamps preserve input order; no Petri-net alignment"
+  ],
+  "example": "examples/synthetic-conformance.json",
+  "application": "processminer-ai",
+  "version": "0.4.0",
+  "author": "build_enterprise automated application developer",
+  "independent_review": false,
+  "status": "TESTED",
+  "checked_at_utc": "2026-10-22T14:10:53.925992+00:00",
+  "scope": "Developer unit/API integration and frontend DOM-fixture transport/state tests before root shared access integration. Not browser rendering, Docker acceptance, hosted CI or a publication claim. Root integrates and tests shared access after this checkpoint.",
+  "test_commands": [
+    "work/.venv/bin/python -m pytest -q (repository cwd)",
+    "node --test tests/ui.test.mjs",
+    "work/.venv/bin/python -m bandit -r app -ll"
+  ],
+  "logs": [
+    "pytest.txt",
+    "frontend.txt",
+    "bandit.txt"
+  ],
+  "bandit": "PASS; configured static scan0 findings",
+  "feature_source_sha256": {
+    "app/core.py": "d6cfc1e3951087c28e4c5bb6c103cc1d95c6d4aa951c8aad7b677cda5f8f3217",
+    "app/conformance.py": "c36685d412e7436ae966a961c49a021d838d85ff76414f6c22d550d5dfd36d36",
+    "app/static/app.js": "4e06474408c748ff2b731a98acc894f65ebdd612982d57ae6a34b10d47c56590",
+    "tests/test_improvements_04.py": "0792c6a74bdd58225335123bfebf2c891f6e8b93e981aec8099426fd51b9f6d4",
+    "tests/ui.test.mjs": "a5043c97d19a8cc075afe4ee3361637a3ad071d70c81055c820c1184434aef17"
+  },
+  "synthetic_examples_only": true,
+  "shared_constraints": "No new dependencies, dynamic execution, external actions or paid services. Existing streamed2MiB guard, CSV empty records and asynchronous revision safeguards retained.",
+  "mutations": "No Git commits/pushes, Docker changes or root-owned access files edited."
+}

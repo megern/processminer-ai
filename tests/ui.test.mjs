@@ -164,6 +164,9 @@ function applicationDOM() {
       this.children = [];
       this.append(...items);
     }
+    before(...items) {
+      this.siblings = items;
+    }
     after(...items) {
       this.siblings = items;
     }
@@ -173,7 +176,14 @@ function applicationDOM() {
     }
     querySelectorAll(selector) {
       return this.children.flatMap((n) => [
-        ...(n.tagName === "input" && (selector !== "input:checked" || n.checked)
+        ...((
+          selector === "select"
+            ? n.tagName === "select"
+            : selector === "label"
+              ? n.tagName === "label"
+              : n.tagName === "input" &&
+                (selector !== "input:checked" || n.checked)
+        )
           ? [n]
           : []),
         ...n.querySelectorAll(selector),
@@ -191,6 +201,7 @@ function applicationDOM() {
     getElementById: get,
     createElement: (tag) => new Element(tag),
     querySelectorAll: () => [...nodes.values()],
+    querySelector: () => get("input-panel"),
   };
   return { nodes, get };
 }
@@ -359,4 +370,71 @@ test("case drilldown bound survives real configuration export", async () => {
     URL.createObjectURL = original;
     URL.revokeObjectURL = revoke;
   }
+});
+
+test("actual reference builder is retained in normal configuration export", async () => {
+  const fixture = await realApplication();
+  fixture.get("reference-example").onclick();
+  let exported;
+  const original = URL.createObjectURL,
+    revoke = URL.revokeObjectURL;
+  URL.createObjectURL = (b) => ((exported = b), "blob:test");
+  URL.revokeObjectURL = () => {};
+  try {
+    fixture.get("export-config").onclick();
+    const value = JSON.parse(await exported.text());
+    assert.deepEqual(value.reference.allowed_starts, ["Start"]);
+    assert.deepEqual(value.reference.allowed_ends, ["Complete"]);
+    assert.deepEqual(value.reference.allowed_edges, [
+      { source: "Start", target: "Review" },
+      { source: "Review", target: "Complete" },
+    ]);
+  } finally {
+    URL.createObjectURL = original;
+    URL.revokeObjectURL = revoke;
+  }
+});
+test("delayed reference import cannot overwrite current edited reference", async () => {
+  const fixture = await realApplication();
+  let release;
+  fixture.get("reference-file").files = [
+    { size: 100, text: () => new Promise((r) => (release = r)) },
+  ];
+  const pending = fixture.get("reference-file").onchange();
+  fixture.get("reference-starts").value = "User start";
+  fixture.get("reference-enable").checked = false;
+  fixture.get("input-panel");
+  markEdited(fixture);
+  release(
+    JSON.stringify({
+      allowed_starts: ["Old"],
+      allowed_ends: ["Old"],
+      allowed_edges: [],
+    }),
+  );
+  await pending;
+  assert.equal(fixture.get("reference-starts").value, "User start");
+  assert.equal(fixture.get("reference-enable").checked, false);
+});
+
+test("bubbling file change does not invalidate its own reference import", async () => {
+  const fixture = await realApplication();
+  let release;
+  fixture.get("reference-file").files = [
+    { size: 100, text: () => new Promise((r) => (release = r)) },
+  ];
+  const pending = fixture.get("reference-file").onchange();
+  fixture
+    .get("reference-panel")
+    .listeners.change({ target: fixture.get("reference-file") });
+  release(
+    JSON.stringify({
+      allowed_starts: ["Imported"],
+      allowed_ends: ["End"],
+      allowed_edges: [{ source: "Imported", target: "End" }],
+    }),
+  );
+  await pending;
+  assert.equal(fixture.get("reference-starts").value, "Imported");
+  assert.equal(fixture.get("reference-enable").checked, true);
 });
