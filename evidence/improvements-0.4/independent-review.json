@@ -54,12 +54,25 @@
       "image_id": "sha256:a1bfd78ad68777eaecaa2ae1f97be9e375c186eda6304a88c9b6707f5249f9ab",
       "health": "healthy",
       "matches_current_source_proof_container": true
+    },
+    "ci-trigger-operational-recovery": {
+      "status": "PASS",
+      "checked_at_utc": "2026-10-22T18:24:01.096950+00:00",
+      "scope": "Independent exact-byte comparison against fetched origin/main workflow. Only on trigger declaration changes to explicit push/pull_request plus workflow_dispatch; permissions and complete quality job bytes identical.",
+      "baseline_ref": "3c75a67314df508bda50510f88e2728d945ab2f2",
+      "before_sha256": "835304470dc0cd12354ec1cdc75665a9171ac4bef20478d3c623767c3e589832",
+      "sha256": "bcc5cbd3272c0a75e14e0e05eecd042ad7d8fdf207fb94b2a921a4f1e8989e28",
+      "path": ".github/workflows/ci.yml",
+      "quality_job_bytes_unchanged": true,
+      "permissions_bytes_unchanged": true,
+      "runtime_app_docker_hashes_unchanged": true,
+      "limits": "No claim this syntax change resolves GitHub delivery; the protected PR4 and actual resulting checks remain required release-manager evidence. No new app tests required for unchanged application/job bytes; root separately reruns gates."
     }
   },
   "source_stable_during_checks": true,
   "hashes": [
     {
-      "sha256": "835304470dc0cd12354ec1cdc75665a9171ac4bef20478d3c623767c3e589832",
+      "sha256": "bcc5cbd3272c0a75e14e0e05eecd042ad7d8fdf207fb94b2a921a4f1e8989e28",
       "path": ".github/workflows/ci.yml"
     },
     {
@@ -240,6 +253,13 @@
     {
       "severity": "documentation",
       "description": "Earlier mining-method paragraph broadly says not conformance checking; clarify that optional reference-allowlist conformance is now available while full Petri-net alignment remains outside scope."
+    },
+    {
+      "severity": "operational_recovery_configuration_review",
+      "checked_at_utc": "2026-10-22T18:24:01.096950+00:00",
+      "description": "Root reports GitHub PR3 quality success without source/main push check delivery. Explicit existing events and a manual dispatch trigger now make workflow recovery invocable; exact quality job and permissions remain unchanged. Configuration review resolved; actual new check delivery remains release-manager verification.",
+      "resolution": "Reviewed and accepted trigger-only workflow change, preserving every quality gate.",
+      "provenance": "Git origin/main comparison plus current workflow SHA256 in checks.ci-trigger-operational-recovery; no independent assertion of GitHub event delivery."
     }
   ],
   "runtime_status": "PASS: final rebuilt preview API probes and served index/guide/static bytes match current accepted source.",
