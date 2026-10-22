@@ -1,4 +1,4 @@
-# ProcessMiner AI · 0.3.0
+# ProcessMiner AI · 0.4.0
 
 **Event-log exploration and automation discovery.** A local event-log analysis tool for analysts and operations teams. It reveals observed case paths, directly-follows relations and long inter-event intervals, then proposes repeated activities for investigation.
 
@@ -27,7 +27,7 @@ For several apps, change the compose host port; each container listens on 8000. 
 
 Events are sorted chronologically within each case, independent of CSV row order. Timestamp ties preserve original input order and are counted. A trace variant is an exact ordered activity sequence. Directly-follows edges aggregate adjacent event pairs with counts and mean/total elapsed seconds. Case duration spans first to last observed event, including zero for a single event.
 
-The “bottleneck” ranking uses mean inter-event elapsed time, which combines waiting and execution and can be distorted by batching, missing events or incomplete cases. It is not activity service duration, a discovered causal process model, conformance checking or a prediction of cycle time. No model training or actual automation execution occurs.
+The “bottleneck” ranking uses mean inter-event elapsed time, which combines waiting and execution and can be distorted by batching, missing events or incomplete cases. It is not activity service duration, a discovered causal process model or a prediction of cycle time. Optional reference allowlist conformance is a separate explicit check described below. No model training or actual automation execution occurs.
 
 Duplicate events are retained; loop edges are possible. Mixed timezone offsets are normalized by datetime comparison. Event frequency alone never proves automation feasibility.
 
@@ -65,7 +65,7 @@ The clearly synthetic example has two Start → Review → Complete cases. Start
 
 If no edges appear, check whether the case ID mistakenly identifies individual events. If mapping fails, choose three distinct existing columns. If timestamps lack a timezone, fix the source log or explicitly document an assumed timezone outside the tool; the app does not guess one. If ties are frequent, investigate timestamp precision and lifecycle ordering.
 
-HTTP JSON requests are bounded at 2 MiB; CSV parsing is bounded at 50 columns/10000 rows. Requests are local CPU work, no outside actions. Authentication and HTTPS are required when deploying beyond a trusted localhost environment. See the user guide for detailed method/resource limitations. This release provides no authentication, durable history or multi-user access management.
+HTTP JSON requests are bounded at 2 MiB; CSV parsing is bounded at 50 columns/10000 rows. Requests are local CPU work, no outside actions. Authentication and HTTPS are required when deploying beyond a trusted localhost environment. See the user guide for detailed method/resource limitations. This release provides optional shared-key API access and per-process compute admission. It does not provide durable history or multi-user access management; see docs/OPERATIONS.md.
 
 ## License
 
@@ -84,3 +84,21 @@ API /analyze and /csv/analyze accept case_limit. Outputs add case_duration_summa
 Fresh 0.3 validation is saved in `evidence/improvements-0.3/`; older reports describe earlier versions and are not proof of these additions. This is automated developer work with separate release-manager and independent QA gates; no human review or enterprise certification is claimed.
 
 The new synthetic request `examples/synthetic-improvements-03.json` demonstrates this version. POST it to `/csv/analyze`; all data are synthetic.
+
+## Reference process conformance in 0.4
+
+Enable the optional reference process panel, enter allowed start/end activities one per line, and add allowed transitions using the From/To fields. Names are exact and case-sensitive after reference/CSV trimming. Load synthetic reference provides Start → Review → Complete; your current event log is retained and conservatively treated as user input. You can import/export a reference JSON containing allowed_starts, allowed_ends and allowed_edges, each edge having source and target fields. Normal configuration/report exports also preserve the reference.
+
+Run analysis with the usual mapped event CSV. A case conforms if and only if its first activity belongs to allowed_starts, its last activity belongs to allowed_ends, and every adjacent chronological activity pair belongs to allowed_edges. A single-event case has no transitions, so only start/end membership matters. Empty edge allowlists can be used for such processes. Cases are sorted chronologically; equal timestamps retain original input order, which can affect a result and should be reviewed.
+
+Conformance ratio is conforming observed cases divided by all observed cases. Each disallowed first activity counts one start violation; each disallowed last activity counts one end violation; every disallowed adjacent pair counts one edge violation. A case may have several violations but counts once as a violating case. All cases enter totals even when the case drilldown is truncated. Case rows are ordered by ID and limited by case_limit (1–200, default 50), with at most 50 detailed violations per shown case and explicit truncation markers. Correct the event log, reference or timestamp precision only with domain justification; do not add edges merely to inflate the ratio.
+
+This is descriptive allowlist conformance, not Petri-net token replay, optimal alignment, missing-event reconstruction, compliance certification or causal process analysis. The reference cannot express concurrency, optional hidden tasks, loops beyond explicitly allowed adjacent edges, global sequence constraints or business-calendar semantics. Incomplete traces can fail starts/ends legitimately. Activity frequency and reference violations do not prove automation feasibility or operational waste.
+
+Both POST /analyze and POST /csv/analyze accept optional reference; omitting it preserves existing mining results without conformance. Up to 200 distinct allowed starts/ends and 2,000 unique edges are accepted; blank names, duplicate edges and duplicate start/end entries are rejected. Existing event/CSV/body limits still apply. See examples/synthetic-conformance.json, which includes one conforming and one skipping case: expected ratio 0.5. If a name mismatch is unexpected, inspect case, whitespace, mapped columns and chronological ties before revising the reference.
+
+Developer validation for 0.4 is saved in `evidence/improvements-0.4/`. Prior evidence describes prior versions. Local developer tests do not establish independent acceptance, hosted CI success or deployment readiness.
+
+## Server access and operating limits
+
+See [Operations](docs/OPERATIONS.md) for optional shared-key API access, per-process request admission, platform notes and the additional work needed for public multi-user hosting.

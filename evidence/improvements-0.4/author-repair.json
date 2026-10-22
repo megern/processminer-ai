@@ -1,0 +1,75 @@
+{
+  "application": "processminer-ai",
+  "version": "0.4.0",
+  "status": "TESTED",
+  "author": "build_enterprise original application author",
+  "independent_review": false,
+  "checked_at_utc": "2026-10-22T14:37:51.900584+00:00",
+  "scope": "Author repairs requested by independent QA. Independent reviewer regressions were not modified. Includes integrated shared access tests; this is not Docker/hosted CI acceptance.",
+  "python_passed": 54,
+  "node_runner_passed": 22,
+  "bandit": "PASS0 configured findings",
+  "logs": [
+    "pytest-after-review.txt",
+    "frontend-after-review.txt",
+    "bandit-after-review.txt"
+  ],
+  "hashes": [
+    {
+      "path": "app/USER_GUIDE.md",
+      "sha256": "542a91592cbdf43b3a7f719130ec81cbed7e8816798f9db676d67514de3eb452"
+    },
+    {
+      "path": "app/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "app/access.py",
+      "sha256": "bc340ac2d8658f547b2a58012834d302482fea40a8773ba0363b4a1b2edf251c"
+    },
+    {
+      "path": "app/conformance.py",
+      "sha256": "c36685d412e7436ae966a961c49a021d838d85ff76414f6c22d550d5dfd36d36"
+    },
+    {
+      "path": "app/core.py",
+      "sha256": "d6cfc1e3951087c28e4c5bb6c103cc1d95c6d4aa951c8aad7b677cda5f8f3217"
+    },
+    {
+      "path": "app/csv_import.py",
+      "sha256": "7d605fe5bf5b14b9563481752dcd4c7aef7b67e2539b9d5171a75f7ee2c10346"
+    },
+    {
+      "path": "app/guard.py",
+      "sha256": "d1eda2150e58503114c6cf4ba36d5958aa7e2cfbb496fc0d8026b5c9da4beb77"
+    },
+    {
+      "path": "app/main.py",
+      "sha256": "824226ee713476051ff002cd9ab64a9a696a8be149e0fe516aadac098845b8a9"
+    },
+    {
+      "path": "app/static/access.js",
+      "sha256": "f7a4a09a26b83052edc956cf886195c0f4687b0661a166320f460f3e3ccad0d5"
+    },
+    {
+      "path": "app/static/app.js",
+      "sha256": "4e06474408c748ff2b731a98acc894f65ebdd612982d57ae6a34b10d47c56590"
+    },
+    {
+      "path": "app/static/common.js",
+      "sha256": "baf4eaf1e37282bf4fe136e4c953dc9a414582769da80aee8121384e339287e6"
+    },
+    {
+      "path": "app/static/guide.html",
+      "sha256": "3d7def26168db74210f75cd136d4819fe233ebdf7064a143511f492fde02be8e"
+    },
+    {
+      "path": "app/static/index.html",
+      "sha256": "a0ef826a0c61b97e1e7f0eb6291e589ecc6ff90df3ef8f060f80a7b9e62079f1"
+    },
+    {
+      "path": "app/static/styles.css",
+      "sha256": "14e48894070883d8545452d3e2b9bcefe3b8316e22048fc10b5b334e3cb137ad"
+    }
+  ]
+}

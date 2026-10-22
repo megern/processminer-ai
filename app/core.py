@@ -5,6 +5,7 @@ from datetime import datetime
 from statistics import mean, median
 from math import floor
 from pydantic import BaseModel, ConfigDict, Field
+from .conformance import Reference, conformance
 
 
 class Event(BaseModel):
@@ -18,6 +19,7 @@ class Request(BaseModel):
     model_config = ConfigDict(extra="forbid")
     events: list[Event] = Field(min_length=1, max_length=10000)
     case_limit: int = Field(default=50, ge=1, le=200)
+    reference: Reference | None = None
 
 
 def analyze(request: Request) -> dict:
@@ -89,7 +91,7 @@ def analyze(request: Request) -> dict:
         )
         if count >= 2
     ]
-    return {
+    result = {
         "case_count": len(cases),
         "event_count": len(request.events),
         "mean_case_seconds": mean(durations),
@@ -123,6 +125,12 @@ def analyze(request: Request) -> dict:
         "tied_timestamp_pairs": tied,
         "limitations": "Intervals include waiting and execution time; they are not activity service durations. Ties preserve input order. Frequency alone does not establish automation feasibility.",
     }
+
+    if request.reference is not None:
+        result["conformance"] = conformance(
+            request.events, request.reference, request.case_limit
+        )
+    return result
 
 
 def quantile(values, probability):

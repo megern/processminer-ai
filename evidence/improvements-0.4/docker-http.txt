@@ -1,0 +1,100 @@
+{
+  "synthetic": true,
+  "http_status": 200,
+  "invalid_input_status": 422,
+  "latency_ms": [
+    269.7315418627113,
+    243.56579105369747,
+    172.99883300438523
+  ],
+  "result": {
+    "case_count": 2,
+    "event_count": 4,
+    "mean_case_seconds": 900.0,
+    "case_duration_summary": {
+      "median_seconds": 900.0,
+      "p90_seconds": 1140.0,
+      "p95_seconds": 1170.0,
+      "method": "Linear interpolation at (n-1)*p across all observed case durations."
+    },
+    "rework": {
+      "cases_with_rework": 0,
+      "case_fraction": 0.0,
+      "extra_activity_visits": 0,
+      "definition": "Occurrences after the first of the same activity within the same case. Repetition may be legitimate; it does not prove error or waste."
+    },
+    "case_details": [
+      {
+        "case_id": "1",
+        "event_count": 2,
+        "duration_seconds": 600.0,
+        "variant": [
+          "Start",
+          "Review"
+        ],
+        "variant_truncated": false,
+        "rework_events": 0,
+        "repeated_activity_count": 0,
+        "repeated_activities": [],
+        "repeated_activities_truncated": false
+      },
+      {
+        "case_id": "2",
+        "event_count": 2,
+        "duration_seconds": 1200.0,
+        "variant": [
+          "Start",
+          "Review"
+        ],
+        "variant_truncated": false,
+        "rework_events": 0,
+        "repeated_activity_count": 0,
+        "repeated_activities": [],
+        "repeated_activities_truncated": false
+      }
+    ],
+    "case_details_limit": 50,
+    "case_details_truncated": false,
+    "directly_follows": [
+      {
+        "from": "Start",
+        "to": "Review",
+        "count": 2,
+        "mean_seconds": 900.0,
+        "total_seconds": 1800.0
+      }
+    ],
+    "bottlenecks": [
+      {
+        "from": "Start",
+        "to": "Review",
+        "count": 2,
+        "mean_seconds": 900.0,
+        "total_seconds": 1800.0
+      }
+    ],
+    "variants": [
+      {
+        "activities": [
+          "Start",
+          "Review"
+        ],
+        "case_count": 2
+      }
+    ],
+    "automation_candidates": [
+      {
+        "activity": "Review",
+        "event_count": 2,
+        "reason": "Repeated activity; investigate deterministic rules and exception rate before automation."
+      },
+      {
+        "activity": "Start",
+        "event_count": 2,
+        "reason": "Repeated activity; investigate deterministic rules and exception rate before automation."
+      }
+    ],
+    "tied_timestamp_pairs": 0,
+    "limitations": "Intervals include waiting and execution time; they are not activity service durations. Ties preserve input order. Frequency alone does not establish automation feasibility."
+  }
+}
